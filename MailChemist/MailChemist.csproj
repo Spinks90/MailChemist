@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net461</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Paul Spinks, Liam Riddell</Authors>
+    <Company>Paul Spinks, Liam Riddell</Company>
+    <PackageProjectUrl>https://github.com/Spinks90/MailChemist</PackageProjectUrl>
+    <PackageIcon>MailChemist-1024x1024.png</PackageIcon>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>0.3.0-beta</Version>
+    <Description>MailChemist is a combination of two technologies (MJML, and Fluid.NET) to dynamically generate beautiful responsive emails driven by templates.</Description>
+    <PackageId>MailChemist</PackageId>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\Paul\source\repos\MailChemist\MailChemist\MailChemist.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="MailChemist-1024x1024.png" />
+    <None Remove="MailChemist-1024x1024.png" />
+    <None Include="MailChemist-1024x1024.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fluid.Core" Version="1.0.0-beta-9663" />
+    <PackageReference Include="MailChemist.Core" Version="0.5.0-beta" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="RestSharp" Version="106.11.4" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+	        <_Parameter1>MailChemist.UnitTests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+</Project>
