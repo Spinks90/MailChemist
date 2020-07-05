@@ -3,13 +3,9 @@
 MailChemist is a combination of two technologies (MJML, and Fluid&#46;NET) to dynamically generate beautiful responsive emails driven by templates. 
 
 ## Content Providers
-An email content provider is a high-level class that handles preparing the email template content for fluid Generater using e.g. Web API, file and SQL. Currently MailChemist supports three content providers:
+An email content provider is a high-level class that handles preparing the email template content for fluid Generater using e.g. Web API, file and SQL. Currently MailChemist supports two content providers:
 * MJML API
 * File
-
-### Custom Content Providers
-MailChemist is flexible by design and allows you to create custom content providers. The community built content providers
-* MJML&#46;NET  
 
 ## Getting started
 
@@ -24,7 +20,7 @@ var model = new
 string content = @"<mjml><mj-body>{{ Model.FirstName }}</mj-body></mjml>";
 
 var mailChemist = new MailChemist("YourMjmlAppId", "YourMjmlSecretKey");
-mailChemist.TryGenerate(content, model, true, out var result, out var errors);
+mailChemist.TryGenerate(content, model, out var result, out var errors, true);
 ```
 
 > RegisterType is required to be set to true since it's an anonymous type. This should be set to false, if you intend on using the `MailChemistModel` attribute which would be cached.
