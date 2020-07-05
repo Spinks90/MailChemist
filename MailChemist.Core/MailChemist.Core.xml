@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MailChemist.Core</name>
+    </assembly>
+    <members>
+        <member name="T:MailChemist.Core.Attributes.MailChemistModelAttribute">
+            <summary>
+            Indicates that this class should be registered into global types in Fluid.
+            </summary>
+        </member>
+        <member name="T:MailChemist.Core.Entities.EmailContentData">
+             <summary>
+            
+             </summary>
+        </member>
+        <member name="P:MailChemist.Core.Entities.EmailContentData.Content">
+             <summary>
+            
+             </summary>
+        </member>
+        <member name="P:MailChemist.Core.Entities.EmailContentData.Errors">
+             <summary>
+            
+             </summary>
+        </member>
+        <member name="T:MailChemist.Core.Interfaces.IFluidModelTemplate">
+            <summary>
+            Use this for automatically binding when calling <see cref="!:MailChemist.RegisterGlobalTypes" />
+            </summary>
+        </member>
+    </members>
+</doc>
