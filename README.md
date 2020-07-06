@@ -54,7 +54,7 @@ mailChemist.TryGenerate("Test.mc", model, out var result, out var errors, true);
 
 ## Fluid&#46;NET Filters
 
-If you require the inbuilt MailChemist filters you can use `MailChemist.RegisterGlobalFilters()`.
+MailChemist utilises Fluid.NET under the hood because of this; You can leverage [custom filter functions](https://github.com/sebastienros/fluid#adding-custom-filters) in your templates. MailChemist has out of the box fluid filters which can be registered by running `MailChemist.RegisterGlobalFilters()`.
 
 ### IsLessThanZeroAddClassFilter
 
@@ -67,3 +67,10 @@ If `Profit` was lower than zero then it would generate:
 ```html
 <div class="redText">-1</div>
 ```
+
+## Appreciations
+
+Thanks to the following great projects that made MailChemist possible:
+
+- [Fluid.NET](https://github.com/sebastienros/fluid)
+- [MJML](https://github.com/mjmlio/mjml)
