@@ -8,13 +8,13 @@ namespace MailChemist.Core.Interfaces
         bool TryGenerate<T>(string content,
                             T model,
                             out string result,
-                            out IList<string> errors,
+                            out string errors,
                             bool registerType = false) where T : class;
 
         bool TryGenerateFluid<T>(string fluid,
                                 T model,
                                 out string result,
-                                out IList<string> errors,
+                                out string errors,
                                 string modelName = "Model",
                                 CultureInfo cultureInfo = null,
                                 bool registerType = false) where T : class;

@@ -19,7 +19,7 @@ namespace MailChemist.Extensions
             if (target is null)
                 throw new ArgumentNullException(nameof(target));
 
-            if (source is List<T> concreteList)
+            if (source is IList<T> concreteList)
             {
                 concreteList.AddRange(target);
                 return;

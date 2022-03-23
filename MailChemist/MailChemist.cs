@@ -2,8 +2,6 @@
 using MailChemist.Core.Attributes;
 using MailChemist.Core.Entities;
 using MailChemist.Core.Interfaces;
-using MailChemist.Extensions;
-using MailChemist.Filters;
 using MailChemist.Providers;
 using System;
 using System.Collections.Generic;
@@ -17,7 +15,11 @@ namespace MailChemist
     /// </summary>
     public class MailChemist : IMailChemist
     {
+        private readonly FluidParser _fluidParser = new FluidParser();
         private readonly IEmailContentProvider _emailContentProvider;
+
+        private static List<Type> _globalTypes = new List<Type>();
+        private static FilterCollection _globalFilters = new FilterCollection();
 
         private string _result = string.Empty;
 
@@ -60,29 +62,25 @@ namespace MailChemist
         /// </summary>
         /// <returns></returns>
         /// <exception cref="AppDomainUnloadedException"></exception>
-        public static bool RegisterGlobalTypes()
+        public void RegisterGlobalTypesByAttribute()
         {
             var types = AppDomain.CurrentDomain.GetAssemblies()
                         .SelectMany(x => x.GetTypes())
                          .Where(m => m.GetCustomAttributes(typeof(MailChemistModelAttribute), false).Length > 0)
                          .ToList();
+        }
 
-            if (types == null)
-                return false;
+        public void RegisterGlobalType(Type type)
+        {
 
-            foreach (var type in types)
-                TemplateContext.GlobalMemberAccessStrategy.Register(type);
-
-            return true;
         }
 
         /// <summary>
         /// Allows you to use MailChemist defined filters. 
         /// </summary>
-        public static void RegisterGlobalFilters()
+        public void RegisterGlobalFilter(string name, FilterDelegate filterDelegate)
         {
-            TemplateContext.GlobalFilters.AddFilter("IsLessThanZeroAddClass", MailChemistFilters.IsLessThanZeroAddClass);
-            TemplateContext.GlobalFilters.AddFilter("MoneyWithCurrency", MailChemistFilters.MoneyWithCurrency);
+            _globalFilters.AddFilter(name, filterDelegate);
         }
 
         /// <summary>
@@ -94,46 +92,42 @@ namespace MailChemist
         /// <param name="model"></param>
         /// <param name="registerType">If you have not registered the type, set this flag to true</param>
         /// <param name="result"></param>
-        /// <param name="errors">Errors with getting the content or generating the fluid</param>
+        /// <param name="error">Error with getting the content or generating the fluid</param>
         /// <returns></returns>
         public bool TryGenerate<T>(string content,
                                   T model,
                                   out string result,
-                                  out IList<string> errors,
+                                  out string error,
                                   bool registerType = false) where T : class
         {
-            errors = new List<string>();
+            result = string.Empty;
+            error = string.Empty;
 
-            EmailContentData contentResult = new EmailContentData(); ;
+            EmailContentData contentResult = new EmailContentData();
 
             try
             {
                 contentResult = _emailContentProvider.GenerateEmailContent(content);
+
+                if (string.IsNullOrEmpty(contentResult.Error) == false)
+                    error = contentResult.Error;
             }
             catch(Exception ex)
             {
-                errors.Add(ex.Message);
-            }
-            finally
-            {
-                errors.AddRange(contentResult.Errors ?? Enumerable.Empty<string>());
+                error = ex.Message;
             }
             
-            if(errors.Any())
-            {
-                result = string.Empty;
+            if(string.IsNullOrEmpty(error) == false)
                 return false;
-            }
 
-            if(TryGenerateFluid(contentResult.Content, model, out var fluidResult, out var fluidErrors, registerType: registerType) == false)
+            if(TryGenerateFluid(contentResult.Content, model, out var fluidResult, out var fluidError, registerType: registerType) == false)
             {
                 result = string.Empty;
-                errors = fluidErrors;
+                error = fluidError;
                 return false;
             }
 
             result = fluidResult;
-            errors = Array.Empty<string>();
 
             return true;
         }
@@ -144,7 +138,7 @@ namespace MailChemist
         /// <param name="fluid"></param>
         /// <param name="model"></param>
         /// <param name="result"></param>
-        /// <param name="errors"></param>
+        /// <param name="error"></param>
         /// <param name="modelName"></param>
         /// <param name="cultureInfo"></param>
         /// <param name="registerType"></param>
@@ -152,30 +146,31 @@ namespace MailChemist
         public bool TryGenerateFluid<T>(string fluid,
                                       T model,
                                       out string result,
-                                      out IList<string> errors,
+                                      out string error,
                                       string modelName = "Model",
                                       CultureInfo cultureInfo = null,
                                       bool registerType = false) where T : class
         {
-            errors = Array.Empty<string>();
+            error = string.Empty;
             result = string.Empty;
 
-            if (FluidTemplate.TryParse(fluid, out var template, out var fluidErrors) == false)
-            {
-                errors = new List<string>();
-                errors.AddRange(fluidErrors);
-                return false;
-            }
-        
-            var context = new TemplateContext();
+            var options = new TemplateOptions();
 
-            if (cultureInfo != null)
-                context.CultureInfo = cultureInfo;
-            else
-                context.CultureInfo = CultureInfo.CurrentCulture;
+            options.CultureInfo = cultureInfo is null ? CultureInfo.CurrentCulture : cultureInfo;
+
+            foreach (var filter in _globalFilters)
+                options.Filters.AddFilter(filter.Key, filter.Value);
 
             if (registerType)
-                context.MemberAccessStrategy.Register<T>();
+                RegisterTypes(options, model);
+
+            if (_fluidParser.TryParse(fluid, out var template, out var fluidError) == false)
+            {
+                error = fluidError;
+                return false;
+            }
+
+            var context = new TemplateContext(model, options);
 
             context.SetValue(modelName, model);
 
@@ -205,7 +200,7 @@ namespace MailChemist
                 return false;
             }
 
-            if(retVal.Errors?.Any() ?? false)
+            if(string.IsNullOrEmpty(retVal.Error) == false)
                 return false;
 
             result = retVal.Content ?? string.Empty;
@@ -219,26 +214,44 @@ namespace MailChemist
                                        CultureInfo cultureInfo = null,
                                        bool registerType = false) where T : class
         {
-            var template = FluidTemplate.Parse(fluid);
 
-            var context = new TemplateContext();
 
-            if (cultureInfo != null)
-                context.CultureInfo = cultureInfo;
-            else
-                context.CultureInfo = CultureInfo.CurrentCulture;
+            var template = _fluidParser.Parse(fluid);
+
+            var options = new TemplateOptions();
+
+            foreach (var filter in _globalFilters)
+                options.Filters.AddFilter(filter.Key, filter.Value);
 
             if (registerType)
-                context.MemberAccessStrategy.Register<T>();
+                RegisterTypes(options, model);
+
+            options.CultureInfo = cultureInfo is null ? CultureInfo.CurrentCulture : cultureInfo;
+
+            var context = new TemplateContext(model, options);
 
             context.SetValue(modelName, model);
 
             return template.Render(context);
         }
 
+        private void RegisterTypes<T>(TemplateOptions templateOptions, T t)
+        {
+            var nestedTypes = typeof(T)
+                .GetProperties()
+                .Select(s => s.PropertyType)
+                .Where(m => m.GetCustomAttributes(typeof(MailChemistModelAttribute), false).Any())
+                .ToList();
+
+            foreach (var nestedType in nestedTypes)
+                templateOptions.MemberAccessStrategy.Register(nestedType);
+
+            templateOptions.MemberAccessStrategy.Register<T>();
+        }
+
         public string GenerateContent(string content)
         {
-            return _emailContentProvider.GenerateEmailContent(content).Content ?? string.Empty;
+            return _emailContentProvider.GenerateEmailContent(content).Content ?? string.Empty;        
         }
     }
 }

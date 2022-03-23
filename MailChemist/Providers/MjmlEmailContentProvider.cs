@@ -17,7 +17,7 @@ namespace MailChemist.Providers
     /// </summary>
     public class MjmlEmailContentProvider : IEmailContentProvider
     {
-        private readonly IRestClient _client;
+        private readonly RestClient _client;
         private readonly string _mjmlApiApplicationId;
         private readonly string _mjmlApiSecretKey;
 
@@ -61,33 +61,37 @@ namespace MailChemist.Providers
             // LR: Convert to json payload
             var renderMjmlPayload = JsonConvert.SerializeObject(mjmlRequest);
 
-            var request = new RestRequest("render", Method.POST);
+            var request = new RestRequest("render", Method.Post);
             request.RequestFormat = DataFormat.Json;
             request.AddJsonBody(renderMjmlPayload);
 
-            var restResponse = _client.Execute(request);
+            var restResponse = _client.ExecuteAsync(request).GetAwaiter().GetResult();
 
             var mjmlRenderResponse = JsonConvert.DeserializeObject<MjmlRenderResponse>(restResponse.Content);
 
             var retVal = new EmailContentData();
-            var errors = new List<string>();
+            //var errors = new List<string>();
+            string error;
 
             if (restResponse.IsSuccessful == false)
             {
-                errors.Add("MJML Render request failed");
+                //errors.Add("MJML Render request failed");
 
-                if (restResponse.ErrorMessage != null)
-                    errors.Add(restResponse.ErrorMessage);
+                // if (restResponse.ErrorMessage != null)
+                //    errors.Add(restResponse.ErrorMessage);
 
-                if (restResponse.StatusDescription != null)
-                    errors.Add(restResponse.StatusDescription);
+                // if (restResponse.StatusDescription != null)
+                //    errors.Add(restResponse.StatusDescription);
+                retVal.Error = "Failed";
+
+                return retVal;
             }
 
-            if (mjmlRenderResponse.Errors != null)
-                errors.AddRange(mjmlRenderResponse.Errors.Select(s => s.Message));
+            //if (mjmlRenderResponse.Errors != null)
+            //    errors.AddRange(mjmlRenderResponse.Errors.Select(s => s.Message));
 
             retVal.Content = mjmlRenderResponse.Html;
-            retVal.Errors = errors;
+            //retVal.Error = error;
 
             return retVal;
         }

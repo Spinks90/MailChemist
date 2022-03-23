@@ -46,14 +46,9 @@
             <returns></returns>
             <exception cref="T:System.AppDomainUnloadedException"></exception>
         </member>
-        <member name="M:MailChemist.MailChemist.RegisterGlobalFilters">
+        <member name="M:MailChemist.MailChemist.TryGenerate``1(System.String,``0,System.String@,System.String@,System.Boolean)">
             <summary>
-            Allows you to use MailChemist defined filters. 
-            </summary>
-        </member>
-        <member name="M:MailChemist.MailChemist.TryGenerate``1(System.String,``0,System.String@,System.Collections.Generic.IList{System.String}@,System.Boolean)">
-            <summary>
-            Executes the <see cref="M:MailChemist.Core.Interfaces.IEmailContentProvider.GenerateEmailContent(System.String)" /> then executes <see cref="M:MailChemist.MailChemist.TryGenerateFluid``1(System.String,``0,System.String@,System.Collections.Generic.IList{System.String}@,System.String,System.Globalization.CultureInfo,System.Boolean)" /> using
+            Executes the <see cref="M:MailChemist.Core.Interfaces.IEmailContentProvider.GenerateEmailContent(System.String)" /> then executes <see cref="M:MailChemist.MailChemist.TryGenerateFluid``1(System.String,``0,System.String@,System.String@,System.String,System.Globalization.CultureInfo,System.Boolean)" /> using
             <see cref="P:System.Globalization.CultureInfo.CurrentCulture" /> as the CultureInfo.
             </summary>
             <typeparam name="T"></typeparam>
@@ -61,17 +56,17 @@
             <param name="model"></param>
             <param name="registerType">If you have not registered the type, set this flag to true</param>
             <param name="result"></param>
-            <param name="errors">Errors with getting the content or generating the fluid</param>
+            <param name="error">Error with getting the content or generating the fluid</param>
             <returns></returns>
         </member>
-        <member name="M:MailChemist.MailChemist.TryGenerateFluid``1(System.String,``0,System.String@,System.Collections.Generic.IList{System.String}@,System.String,System.Globalization.CultureInfo,System.Boolean)">
+        <member name="M:MailChemist.MailChemist.TryGenerateFluid``1(System.String,``0,System.String@,System.String@,System.String,System.Globalization.CultureInfo,System.Boolean)">
             <summary>
             </summary>
             <typeparam name="T"></typeparam>
             <param name="fluid"></param>
             <param name="model"></param>
             <param name="result"></param>
-            <param name="errors"></param>
+            <param name="error"></param>
             <param name="modelName"></param>
             <param name="cultureInfo"></param>
             <param name="registerType"></param>

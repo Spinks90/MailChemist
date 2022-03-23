@@ -15,6 +15,6 @@ namespace MailChemist.Core.Entities
         /// <summary>
         ///
         /// </summary>
-        public IEnumerable<string> Errors { get; set; }
+        public string Error { get; set; }
     }
 }

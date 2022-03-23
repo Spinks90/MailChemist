@@ -1,14 +1,13 @@
 using MailChemist.Core.Attributes;
 using MailChemist.Core.Interfaces;
 using MailChemist.Providers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System;
 using System.Runtime.CompilerServices;
+using Xunit;
 
 namespace MailChemist.UnitTests
 {
-    [TestClass]
     public class MailChemistTests
     {
         [MailChemistModel]
@@ -20,7 +19,7 @@ namespace MailChemist.UnitTests
         }
 
         [MailChemistModel]
-        public class DefaultModel : IDefaultModel
+        public abstract class DefaultModel : IDefaultModel
         {
             public string FirstName { get; set; }
 
@@ -31,11 +30,6 @@ namespace MailChemist.UnitTests
                 FirstName = firstName;
                 LastName = lastName;
             }
-        }
-
-        public class TestModel
-        {
-            public DefaultModel Test { get; set; } = new DefaultModel("Ben", "Smith");
         }
 
         public interface IDefaultModel
@@ -50,11 +44,11 @@ namespace MailChemist.UnitTests
         /// </summary>
         public MailChemistTests()
         {
-            //MailChemist.RegisterGlobalTypes();
-            //MailChemist.RegisterGlobalFilters();
+            MailChemist.RegisterGlobalTypes();
+            MailChemist.RegisterGlobalFilters();
         }
 
-        [TestMethod]
+        [Fact]
         public void ValidateErrorsTryGenerateFluidTest()
         {
             string content = @"<mjml>
@@ -72,10 +66,10 @@ namespace MailChemist.UnitTests
             var mailChemist = new MailChemist();
             mailChemist.TryGenerateFluid(content, model, out var result, out var errors);
 
-            Assert.IsNotNull(errors);
+            Assert.NotEmpty(errors);
         }
 
-        [TestMethod]
+        [Fact]
         public void ValidSimpleStrongTypeTryGenerateFluidTest()
         {
             var model = new PersonModel("Paul", "Spinks");
@@ -85,11 +79,11 @@ namespace MailChemist.UnitTests
             var mailChemist = new MailChemist();
             mailChemist.TryGenerateFluid(content, model, out var fluid, out var errors);
 
-            Assert.IsTrue(string.IsNullOrEmpty(errors));
-            Assert.AreEqual("Paul Spinks", fluid);
+            Assert.Empty(errors);
+            Assert.Equal("Paul Spinks", fluid);
         }
 
-        [TestMethod]
+        [Fact]
         public void ValidSimpleStrongTypeGenerateFluidTest()
         {
             var model = new PersonModel("Paul", "Spinks");
@@ -99,23 +93,23 @@ namespace MailChemist.UnitTests
             var mailChemist = new MailChemist();
             string fluid = mailChemist.GenerateFluid(content, model);
 
-            Assert.AreEqual("Paul Spinks", fluid);
+            Assert.Equal("Paul Spinks", fluid);
         }
 
 
-        [TestMethod]
+        [Fact]
         public void NullEmailContentProviderExceptionTest()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new MailChemist(null));
+            Assert.Throws<ArgumentNullException>(() => new MailChemist(null));
         }
 
-        [TestMethod]
+        [Fact]
         public void NullFileEmailContentProviderExceptionTest()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new MailChemist(new FileEmailContentProvider(null)));
+            Assert.Throws<ArgumentNullException>(() => new MailChemist(new FileEmailContentProvider(null)));
         }
 
-        [TestMethod]
+        [Fact]
         public void ValidFileEmailContentProviderTryTest()
         {
             var model = new
@@ -126,10 +120,10 @@ namespace MailChemist.UnitTests
             var mailChemist = new MailChemist(new FileEmailContentProvider("Templates"));
 
             if(mailChemist.TryGenerate("Test.mc", model, out var result, out var errors, true) == false)
-                Assert.IsTrue(false, "The fluid didn't compile.");
+                Assert.True(false, "The fluid didn't compile.");
         }
 
-        [TestMethod]
+        [Fact]
         public void ValidFileEmailContentProviderTest()
         {
             var model = new
@@ -140,10 +134,10 @@ namespace MailChemist.UnitTests
             var mailChemist = new MailChemist(new FileEmailContentProvider("Templates"));
 
             if (mailChemist.TryGenerate("Test.mc", model, out var result, out var errors, true) == false)
-                Assert.IsTrue(false, "The fluid didn't compile.");
+                Assert.True(false, "The fluid didn't compile.");
         }
 
-        [TestMethod]
+        [Fact]
         public void UnauthorisedMjmlEmailContentProviderTryTest()
         {
             string mjml = @"<mjml>
@@ -160,10 +154,10 @@ namespace MailChemist.UnitTests
 
             var result = mailChemist.TryGenerateContent(mjml, out var content);
 
-            Assert.IsFalse(result);
+            Assert.False(result);
         }
         
-        [TestMethod]
+        [Fact]
         public void UnauthorisedMjmlEmailContentProviderTest()
         {
             string mjml = @"<mjml>
@@ -180,28 +174,7 @@ namespace MailChemist.UnitTests
 
             var result = mailChemist.GenerateContent(mjml);
 
-            Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
-        public void Test()
-        {
-            string mjml = @"<mjml>
-                              <mj-body>
-                                <mj-section>
-                                  <mj-column>
-                                    <mj-text font-size=""20px"" color=""#F45E43"" font-family=""helvetica"">{{ Model.Test.FirstName }}</mj-text>
-                                  </mj-column>
-                                </mj-section>
-                              </mj-body>
-                            </mjml>";
-
-            var model = new TestModel();
-
-            var mailChemist = new MailChemist();
-            var result = mailChemist.TryGenerateFluid(mjml, model, out var fluid, out var errors, registerType: true);
-
-
+            Assert.NotNull(result);
         }
     }
 }
