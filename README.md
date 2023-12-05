@@ -19,8 +19,8 @@ var model = new
 
 string content = @"<mjml><mj-body>{{ Model.FirstName }}</mj-body></mjml>";
 
-var mailChemist = new MailChemist("YourMjmlAppId", "YourMjmlSecretKey");
-mailChemist.TryGenerate(content, model, out var result, out var errors, true);
+var mailChemist = new MailChemistEngine(MailChemistMjmlRenderer.MjmlDotNet);
+mailChemist.Render(content, model);
 ```
 
 > RegisterType is required to be set to true since it's an anonymous type. This should be set to false, if you intend on using the `MailChemistModel` attribute which would be cached.
@@ -39,22 +39,23 @@ public class PersonModel
 
 > If your using nested types, you will need to decorate them with `MailChemistModel` too.
 
-You will only need to call `MailChemist.RegisterGlobalTypes()` once before calling `TryGenerateFluid()` or `TryGenerate()`.
+You will only need to call `MailChemist.RegisterGlobalTypes()` once before calling `Render()` or `RenderFluid()`.
 
 ### Usage using file content provider
 
-If you want a higher performance by using already Generated MJML you can use the `FileEmailContentProvider` without the overhead of connecting to an external website to Generate the MJML.
+If you want a higher performance by using already Generated MJML you can use the `FileContentProvider` without the overhead of connecting to an external website to Generate the MJML.
 ```csharp
-var mailChemist = new MailChemist(new FileEmailContentProvider("Templates"));
+var contentProvider = new FileContentProvider("Email\\Assets");
+var mailChemistEngine = new MailChemistEngine(MailChemistMjmlRenderer.MjmlDotNet, contentProvider)
 
-mailChemist.TryGenerate("Test.mc", model, out var result, out var errors, true);
+mailChemist.Render(content, model);
 ```
 `Test.mc` would contain the pre-Generated MJML with Fluid&#46;NET templating.
 
 
 ## Fluid&#46;NET Filters
 
-MailChemist utilises Fluid.NET under the hood because of this; You can leverage [custom filter functions](https://github.com/sebastienros/fluid#adding-custom-filters) in your templates. MailChemist has out of the box fluid filters which can be registered by running `MailChemist.RegisterGlobalFilters()`.
+MailChemist utilises Fluid.NET under the hood because of this; You can leverage [custom filter functions](https://github.com/sebastienros/fluid#adding-custom-filters) in your templates. MailChemist has out of the box fluid filters which can be registered by running `MailChemist.RegisterGlobalFilter()`.
 
 ### IsLessThanZeroAddClassFilter
 
@@ -74,3 +75,4 @@ Thanks to the following great projects that made MailChemist possible:
 
 - [Fluid.NET](https://github.com/sebastienros/fluid)
 - [MJML](https://github.com/mjmlio/mjml)
+- [MJML.NET](https://github.com/SebastianStehle/mjml-net)
