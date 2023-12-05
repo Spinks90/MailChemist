@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace MailChemist.Entities
+namespace MailChemist.Entities;
+
+public class MailChemistFluidResult
 {
-    public class MailChemistFluidResult
-    {
-        public string Html { get; set; }
+    public string Html { get; set; }
 
-        public IEnumerable<string> Errors { get; set; }
-    }
+    public IEnumerable<string> Errors { get; set; }
 }

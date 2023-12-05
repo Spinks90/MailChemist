@@ -1,33 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using MailChemist.Core.Entities;
+using System;
 using System.Globalization;
 
-namespace MailChemist.Core.Interfaces
+namespace MailChemist.Core.Interfaces;
+
+public interface IMailChemistEngine
 {
-    public interface IMailChemist
-    {
-        bool TryGenerate<T>(string content,
-                            T model,
-                            out string result,
-                            out string errors,
-                            bool registerType = false) where T : class;
+    MjmlContentData GetContent(string content);
 
-        bool TryGenerateFluid<T>(string fluid,
-                                T model,
-                                out string result,
-                                out string errors,
-                                string modelName = "Model",
-                                CultureInfo cultureInfo = null,
-                                bool registerType = false) where T : class;
+    void RegisterGlobalType(Type type);
 
-        bool TryGenerateContent(string content, out string result);
+    void RegisterGlobalTypesByAttribute();
 
-        
-        string GenerateFluid<T>(string fluid,
-                                T model,
-                                string modelName = "Model",
-                                CultureInfo cultureInfo = null,
-                                bool registerType = false) where T : class;
+    MjmlResult Render<T>(string content, T model, RenderOptions options = null, bool registerType = false) where T : class;
 
-        string GenerateContent(string content);
-    }
+    MjmlResult RenderFluid<T>(string fluid, T model, string modelName = "Model", CultureInfo cultureInfo = null, bool registerType = false) where T : class;
+
+    MjmlResult RenderMjmlEngine(MailChemistMjmlRenderer mcEngine, string mjml);
 }

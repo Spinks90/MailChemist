@@ -4,63 +4,61 @@
         <name>MailChemist</name>
     </assembly>
     <members>
-        <member name="M:MailChemist.Extensions.IListExtension.AddRange``1(System.Collections.Generic.IList{``0},System.Collections.Generic.IEnumerable{``0})">
-            <summary>
-            This is internal so we don't expand the .NET methods for the developers
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="source"></param>
-            <param name="target"></param>
-        </member>
-        <member name="T:MailChemist.MailChemist">
+        <member name="T:MailChemist.MailChemistx">
             <summary>
             
             </summary>
         </member>
-        <member name="M:MailChemist.MailChemist.#ctor">
+        <member name="M:MailChemist.MailChemistx.#ctor(MailChemist.MailChemistEngine)">
             <summary>
-            If you don't require functionality of <see cref="T:MailChemist.Core.Interfaces.IEmailContentProvider" />. Otherwise, use one of the other constructors.
+            If you don't require functionality of <see cref="T:MailChemist.Core.Interfaces.IContentProvider" />. Otherwise, use one of the other constructors.
             </summary>
         </member>
-        <member name="M:MailChemist.MailChemist.#ctor(System.String,System.String,System.String)">
-            <summary>
-            Use MJML as the <see cref="T:MailChemist.Core.Interfaces.IEmailContentProvider" />
-            </summary>
-            <param name="mjmlApiApplicationId"></param>
-            <param name="mjmlApiSecretKey"></param>
-            <param name="mjmlApiUrl">Use this to mock or change to future version if the scheme hasn't changed</param>
-            <exception cref="T:System.UriFormatException"></exception>
-            <exception cref="T:System.ArgumentNullException"></exception>
-        </member>
-        <member name="M:MailChemist.MailChemist.#ctor(MailChemist.Core.Interfaces.IEmailContentProvider)">
+        <member name="M:MailChemist.MailChemistx.#ctor(MailChemist.Core.Interfaces.IContentProvider,MailChemist.MailChemistEngine)">
             <summary> 
-            Implement a custom <see cref="T:MailChemist.Core.Interfaces.IEmailContentProvider" />
+            Implement a custom <see cref="T:MailChemist.Core.Interfaces.IContentProvider" />
             </summary>
-            <param name="emailContentProvider"></param>
-            <exception cref="T:System.ArgumentNullException"><paramref name="emailContentProvider"/> is null</exception>
+            <param name="mjmlContentProvider"></param>
+            <param name="mailChemistEngine"></param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="mjmlContentProvider"/> is null</exception>
         </member>
-        <member name="M:MailChemist.MailChemist.RegisterGlobalTypes">
+        <member name="M:MailChemist.MailChemistx.RegisterGlobalTypesByAttribute">
             <summary>
             Uses reflection to automatically register any <see cref="T:MailChemist.Core.Attributes.MailChemistModelAttribute" /> types.
             </summary>
             <returns></returns>
             <exception cref="T:System.AppDomainUnloadedException"></exception>
         </member>
-        <member name="M:MailChemist.MailChemist.TryGenerate``1(System.String,``0,System.String@,System.String@,System.Boolean)">
+        <member name="M:MailChemist.MailChemistx.RegisterGlobalType(System.Type)">
             <summary>
-            Executes the <see cref="M:MailChemist.Core.Interfaces.IEmailContentProvider.GenerateEmailContent(System.String)" /> then executes <see cref="M:MailChemist.MailChemist.TryGenerateFluid``1(System.String,``0,System.String@,System.String@,System.String,System.Globalization.CultureInfo,System.Boolean)" /> using
+            Allows you to register a type to be used in the fluid template.
+            </summary>
+            <param name="type"></param>
+        </member>
+        <member name="M:MailChemist.MailChemistx.RegisterGlobalFilter(System.String,Fluid.FilterDelegate)">
+            <summary>
+            Allows you to use MailChemist defined filters. 
+            </summary>
+        </member>
+        <member name="M:MailChemist.MailChemistx.Render``1(System.String,``0,MailChemist.RenderOptions,System.Boolean)">
+            <summary>
+            Executes the provided content provider then renders the fluid and then renders the MJML using the provided engine.
             <see cref="P:System.Globalization.CultureInfo.CurrentCulture" /> as the CultureInfo.
             </summary>
             <typeparam name="T"></typeparam>
             <param name="content"></param>
             <param name="model"></param>
+            <param name="options"></param>
             <param name="registerType">If you have not registered the type, set this flag to true</param>
-            <param name="result"></param>
-            <param name="error">Error with getting the content or generating the fluid</param>
-            <returns></returns>
+            <returns>
+            
+            </returns>
+            <exception cref="T:MailChemist.Exceptions.MailChemistGetContentException">The IContentProvider threw an error. Read the InnerException.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">The provided MailChemistEngine doesn't exist</exception>
         </member>
-        <member name="M:MailChemist.MailChemist.TryGenerateFluid``1(System.String,``0,System.String@,System.String@,System.String,System.Globalization.CultureInfo,System.Boolean)">
+        <member name="M:MailChemist.MailChemistx.RenderFluid``1(System.String,``0,System.String,System.Globalization.CultureInfo,System.Boolean)">
             <summary>
+            
             </summary>
             <typeparam name="T"></typeparam>
             <param name="fluid"></param>
@@ -70,35 +68,29 @@
             <param name="modelName"></param>
             <param name="cultureInfo"></param>
             <param name="registerType"></param>
-            <returns></returns>
-        </member>
-        <member name="M:MailChemist.MailChemist.TryGenerateContent(System.String,System.String@)">
-            <summary>
+            <returns>
             
-            </summary>
-            <param name="content"></param>
-            <param name="result"></param>
-            <returns></returns>
+            </returns>
         </member>
-        <member name="T:MailChemist.Providers.MjmlEmailContentProvider">
+        <member name="T:MailChemist.MailChemistEngine">
             <summary>
             
             </summary>
         </member>
-        <member name="M:MailChemist.Providers.MjmlEmailContentProvider.#ctor(System.Uri,System.String,System.String)">
+        <member name="F:MailChemist.MailChemistEngine.Html">
             <summary>
-            
+            None
             </summary>
-            <param name="baseUri"></param>
-            <param name="mjmlApiApplicationId"></param>
-            <param name="mjmlApiSecretKey"></param>
         </member>
-        <member name="M:MailChemist.Providers.MjmlEmailContentProvider.GenerateEmailContent(System.String)">
+        <member name="F:MailChemist.MailChemistEngine.MjmlApi">
+            <summary>
+            This will use mjml.io/api
+            </summary>
+        </member>
+        <member name="F:MailChemist.MailChemistEngine.MjmlDotNet">
             <summary>
             
             </summary>
-            <param name="content"></param>
-            <returns></returns>
         </member>
     </members>
 </doc>

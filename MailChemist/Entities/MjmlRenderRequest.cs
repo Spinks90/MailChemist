@@ -1,7 +1,6 @@
-﻿namespace MailChemist.Entities
+﻿namespace MailChemist.Entities;
+
+internal sealed class MjmlRenderRequest
 {
-    internal sealed class MjmlRenderRequest
-    {
-        public string mjml { get; set; }
-    }
+    public string mjml { get; set; }
 }
